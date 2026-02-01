@@ -6,16 +6,27 @@ import { ChangeEvent, useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import Navbar from "../component/Navbar"
+import { employerSignup } from "../utils/actions"
+import { toast } from "react-toastify"
 
 const Page = () => {
     const [errormessage, seterrormessage] = useState('');
     const [isPending, startTransition] = useTransition();
     const router = useRouter()
+
     const handlePhoto = (e: ChangeEvent<HTMLInputElement>) => {
+        const MAX_SIZE = 2 * 1024 * 1024;
         const file = e.target.files?.[0]
         if (!file) {
             formik.setFieldValue("companyLogo", '');
             return;
+        }
+
+        if (file.size > MAX_SIZE ) {
+            seterrormessage("Image must be less than 2MB");
+            formik.setFieldValue("companyLogo", '');
+            return
+
         }
 
         const reader = new FileReader()
@@ -35,18 +46,28 @@ const Page = () => {
             companySize: '',
             companyLogo: '',
             firstname: '',
-            lastname:'',
+            lastname: '',
             email: '',
             password: ''
         },
         onSubmit: (values) => {
             try {
                 startTransition(async () => {
-                    const employerData = {
-                        ...values
-                    }
+                    seterrormessage('')
+                    const res = await employerSignup({ ...values })
+                    if (!res.success) {
+                        seterrormessage(res.message)
+                        return;
+                    } 
 
-                    console.log(employerData)
+                       toast.success(res.message, {
+                        autoClose : 2000
+                       })
+                       
+                       setTimeout(() => {
+                           router.push('/dashboard')
+                       }, 2000);
+                
                 })
             } catch (error) {
                 console.log(error)
@@ -56,35 +77,35 @@ const Page = () => {
         validationSchema: yup.object({
             companyName: yup
                 .string()
-                .required("Company name is required"),
+                .required("Required"),
             industry: yup
                 .string()
-                .required('Industry is required'),
+                .required('Required'),
             companySize: yup
                 .string()
-                .required('Company size is required'),
+                .required('Required'),
             companyLogo: yup
                 .string()
-                .required('Company logo is required'),
+                .required('Required'),
             firstname: yup
                 .string()
-                .required('First name is required'),
+                .required('Required'),
             lastname: yup
                 .string()
-                .required('Last name is required'),
+                .required('Required'),
             email: yup
                 .string()
-                .required('Email is required')
+                .required('Required')
                 .email(' enter a valid email'),
             password: yup
                 .string()
-                .required("Password is required")
+                .required("Required")
                 .min(8, "Password must be at least 8 characters")
         })
     })
     return (
         <div>
-            <Navbar/>
+            <Navbar />
             <div className="w-full min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-100 to-indigo-100 p-6">
                 <form onSubmit={formik.handleSubmit} className="bg-white rounded-2xl shadow-xl w-full max-w-3xl p-10">
 
@@ -246,7 +267,7 @@ const Page = () => {
                                 )
                             }
                         </div>
-                        
+
 
                         <button
                             type="submit"

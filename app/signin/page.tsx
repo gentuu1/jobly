@@ -6,11 +6,15 @@ import { useFormik } from 'formik'
 import * as yup from "yup"
 import Link from 'next/link'
 import Navbar from '../component/Navbar'
+import { signIn } from '../utils/actions'
+import {  toast } from 'react-toastify'
 
 const Page = () => {
     const [errormessage, seterrormessage] = useState('')
     const [isPending, startTransition] = useTransition()
     const router = useRouter()
+
+
     let formik = useFormik({
         initialValues: {
             email: '',
@@ -21,9 +25,20 @@ const Page = () => {
             seterrormessage('')
             try {
                 startTransition(async () => {
-                    const logData = {
-                        ...values
+                    const res = await signIn({ ...values })
+                    if (!res.success) {
+                        seterrormessage(res.message)
+                        return;
                     }
+
+                    toast.success(res.message, {
+                        autoClose : 2000
+                    })
+
+
+                    setTimeout(() => {
+                        router.push("/dashboard")
+                    }, 2000)
                 })
             } catch (error) {
                 console.log(error)
@@ -33,23 +48,25 @@ const Page = () => {
 
         validationSchema: yup.object({
             email: yup.string()
-                .required('Email is required')
+                .required('Required')
                 .email('please enter a valid email'),
             password: yup
                 .string()
-                .required("Password is required")           
+                .required("Required")
         })
     })
 
     return (
         <div>
-            <Navbar/>
+            <Navbar />
             <form onSubmit={formik.handleSubmit} className=" w-full lg:min-h-fit  h-150 md:min-h-200 overflow-auto flex items-center justify-center bg-gradient-to-r from-blue-100 to-indigo-100">
                 <div className="bg-white rounded-2xl shadow-xl lg:w-150 md:w-[90%]   w-[95%] p-10 ">
                     <h1 className="text-3xl md:text-4xl font-bold text-center text-gray-800  ">SIGNIN</h1>
                     <div className={`${errormessage ? "block" : "hidden"} bg-red-50 border-red-400 border h-14 text-center content-center m-auto text-red-400`}>
                         <p className="text-sm font-bold">{errormessage ? errormessage : 'hello'}</p>
                     </div>
+
+
                     <div className="flex flex-col gap-6">
 
                         <div className="flex flex-col">
@@ -91,7 +108,7 @@ const Page = () => {
                             // onClick={formik.handleSubmit}
                             className="bg-indigo-500 text-white font-semibold rounded-lg py-3 w-full hover:bg-indigo-600 transition duration-200">
                             {
-                                isPending ? "logging in..." : 'login'
+                                isPending ? "Logging in..." : 'Login'
                             }
                         </button>
                     </div>
@@ -102,7 +119,7 @@ const Page = () => {
                     </p>
 
                     <Link href='/forgot'>
-                            <p className='text-sm md:text-lg mt-3 text-center text-indigo-600 hover:underline cursor-pointer '>Forget password ?</p>
+                        <p className='text-sm md:text-lg mt-3 text-center text-indigo-600 hover:underline cursor-pointer '>Forget password ?</p>
                     </Link>
                 </div>
 

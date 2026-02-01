@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { ChangeEvent, useState, useTransition } from "react";
 import Link from "next/link";
 import Navbar from "../component/Navbar";
+import { signUp } from "../utils/actions";
+import { toast } from "react-toastify";
 
 const Page = () => {
     const [errormessage, seterrormessage] = useState('')
@@ -39,19 +41,31 @@ const Page = () => {
             seterrormessage('')
             try {
                 startTransition(async () => {
-        
-                    console.log({ ...values });
-                   
+                    seterrormessage('')
+                    const res = await signUp({...values})
+
+                    if(!res.success){
+                        seterrormessage(res.message)
+                        return;
+                    }
+                        toast.success(res.message, {
+                            autoClose : 2000
+                        })
+
+                        setTimeout(() => {
+                            router.push('/dashboard')
+                        }, 2000);
+                 
                 })
             } catch (error) {
                 console.log(error)
             }
         },
         validationSchema: yup.object({
-            firstname: yup.string().required('First name is required'),
-            lastname: yup.string().required('Last name is required'),
-            email: yup.string().required('Email is required').email('Please enter a valid email'),
-            password: yup.string().required("Password is required").min(8, "Password must be at least 8 characters")
+            firstname: yup.string().required('Required'),
+            lastname: yup.string().required('Required'),
+            email: yup.string().required('Required').email('Please enter a valid email'),
+            password: yup.string().required("Required").min(8, "Password must be at least 8 characters")
         })
     })
 
@@ -81,7 +95,7 @@ const Page = () => {
                                     value={formik.values.firstname}
                                     onChange={formik.handleChange}
                                     placeholder="First name"
-                                    className={`mb-3 w-full rounded-lg px-4 py-3 md:py-5 focus:outline-none focus:ring-2 focus:ring-indigo-400
+                                    className={`w-full rounded-lg px-4 py-3 md:py-5 focus:outline-none focus:ring-2 focus:ring-indigo-400
                                         ${formik.errors.firstname ? "border border-red-500" : "border border-gray-300"}`}
                                 />
                                 {formik.errors.firstname && (
@@ -106,14 +120,14 @@ const Page = () => {
 
                     {/* Email */}
                     <div className="flex flex-col gap-1">
-                        <label className="text-gray-600 md:text-lg lg:text-[15px]">Email</label>
+                        <label className="text-gray-600 md:text-lg lg:text-[15px] mt-3">Email</label>
                         <input
                             name="email"
                             value={formik.values.email}
                             onChange={formik.handleChange}
                             type="email"
                             placeholder="example@mail.com"
-                            className={`mb-3 rounded-lg px-4 py-3 md:py-5 focus:outline-none focus:ring-2 focus:ring-indigo-400
+                            className={`rounded-lg px-4 py-3 md:py-5 focus:outline-none focus:ring-2 focus:ring-indigo-400
                                 ${formik.errors.email ? "border border-red-500" : "border border-gray-300"}`}
                         />
                         {formik.errors.email && (
@@ -123,14 +137,14 @@ const Page = () => {
 
                     {/* Password */}
                     <div className="flex flex-col gap-1">
-                        <label className="text-gray-600 md:text-lg lg:text-[15px]">Password</label>
+                        <label className="text-gray-600 md:text-lg lg:text-[15px] mt-3">Password</label>
                         <input
                             name="password"
                             value={formik.values.password}
                             onChange={formik.handleChange}
                             type="password"
                             placeholder="••••••••"
-                            className={`mb-3 rounded-lg px-4 py-3 md:py-5 focus:outline-none focus:ring-2 focus:ring-indigo-400
+                            className={` rounded-lg px-4 py-3 md:py-5 focus:outline-none focus:ring-2 focus:ring-indigo-400
                                 ${formik.errors.password ? "border border-red-500" : "border border-gray-300"}`}
                         />
                         {formik.errors.password && (
@@ -140,7 +154,7 @@ const Page = () => {
 
                     {/* Profile Picture */}
                     <div className="flex flex-col gap-1">
-                        <label className="text-gray-600 md:text-lg lg:text-[15px]">
+                        <label className="text-gray-600 md:text-lg lg:text-[15px] mt-3">
                             Profile Picture <span className="text-sm text-gray-400">(optional)</span>
                         </label>
                         <input

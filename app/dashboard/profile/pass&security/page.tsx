@@ -1,14 +1,28 @@
 "use client"
 import ProfileNavbar from "@/app/component/ProfileNavbar"
-import { useFormik } from "formik"
+import { ErrorMessage, useFormik } from "formik"
 import * as yup from "yup"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import { FaTimes } from "react-icons/fa"
+import { changePassword, reqOTP } from "@/app/utils/actions"
+import { useRouter } from "next/navigation"
+import { toast } from "react-toastify"
 
 const Page = () => {
+    const [isPending, startTransition] = useTransition()
     const [openeditPass, setopeneditPass] = useState(false)
     const [openeditEmail, setopeneditEmail] = useState(false)
+    const [confirmotp, setconfirmotp] = useState(false)
+    const [newOtp, setnewOtp] = useState('')
+    const [new_email, setnew_email] = useState('')
+    const [errMsg, seterrMsg] = useState('')
+    const router = useRouter()
+
+    const closeeditemail = () => {
+        setopeneditEmail(false)
+        setconfirmotp(false)
+    }
 
     const formik = useFormik({
         initialValues: {
@@ -17,13 +31,35 @@ const Page = () => {
             confirmpassword: ''
         },
         onSubmit: (values) => {
-            console.log(values);
+            try {
+                seterrMsg('')
+                startTransition(async () => {
+                    const res = await changePassword({ ...values })
+                    if (!res.success) {
+                        seterrMsg(res.message)
+                        return;
+                    }
+                    
+                    toast.success(res.message, {
+                        autoClose: 2000
+                    })
+
+                    setTimeout(() => {
+                        router.push('/signin')
+                    }, 2000);
+
+
+                })
+
+            } catch (error) {
+                console.log("something went wrong", error)
+            }
         },
 
         validationSchema: yup.object({
             currentpassword: yup.string().required("Required"),
-            newpassword: yup.string().required("Required").min(8, "Password must be atleast 8 characaters"),
-            confirmpassword: yup.string().required("Required").oneOf([yup.ref('newpassword')], "Passwords do no match")
+            newpassword: yup.string().required("Required").min(8, "Password must be at least 8 characaters"),
+            confirmpassword: yup.string().required("Required").oneOf([yup.ref('newpassword')], "Passwords do not match")
         })
     })
 
@@ -32,12 +68,43 @@ const Page = () => {
             newemail: '',
         },
         onSubmit: (values) => {
-            console.log(values);
+            try {
+                setconfirmotp(false)
+                startTransition(async () => {
+                    const res = await reqOTP({ ...values })
+
+                    if (!res.success) {
+                        seterrMsg(res.message)
+                    } else {
+                        // formikotp.setFieldValue('newmail', res.new_email)
+                        // formikotp.setFieldValue('otp', res.otp)
+
+                        setconfirmotp(true)
+                    }
+                })
+            } catch (error) {
+                console.log("Something went wrong", error)
+            }
 
         },
 
         validationSchema: yup.object({
             newemail: yup.string().required("Required").email('Enter a valid email')
+        })
+    })
+
+    const formikotp = useFormik({
+        initialValues: {
+            // newemail : '',
+            otp: '',
+            // confirmOtp :''
+        },
+        onSubmit: (values) => {
+            console.log(values);
+
+        },
+        validationSchema: yup.object({
+            otp: yup.string().required("Confirm otp")
         })
     })
 
@@ -94,6 +161,13 @@ const Page = () => {
 
                 <form onSubmit={formik.handleSubmit} className=" lg:w-xl md:w-[70%] w-full h-fit px-5 flex flex-col justify-center m-auto mt-5">
                     <h1 className="lg:text-3xl md:text-4xl text-3xl tracking-tight text-center text-[#262262]">Edit password</h1>
+                    {
+                        errMsg && (
+                            <div className="border border-red-400 bg-red-50 rounded-md py-2 px-4 min-h-10 flex items-center">
+                                <p className="text-red-600 text-sm">{errMsg && errMsg}</p>
+                            </div>
+                        )
+                    }
                     <input
                         className={`${formik.errors.currentpassword && formik.touched.currentpassword ? 'border-red-600 ' : 'border-neutral-300 hover:border-[#3921D7]'} lg:h-12 md:h-14 h-12 md:text-[17px] text-[17px] lg:text-sm px-2 outline-0 border  rounded-sm mt-5 `}
                         placeholder="Current password"
@@ -136,8 +210,8 @@ const Page = () => {
 
                     <div className="flex justify-end-safe h-fit items-center pl-auto gap-2 mt-3">
                         <button type="button" onClick={() => setopeneditPass(false)} className="lg:text-[17px] md:text-[20px] text-[20px] lg:py-3 lg:px-7 md:py-4 md:px-8  py-3 px-6.5  text-[#3921D7] font-semibold bg-transparent hover:bg-[#F4F4F5] rounded-3xl cursor-pointer transition-all duration-300">Cancel</button>
-                       
-                        <button type="submit" className="lg:text-[17px] md:text-[20px] text-[20px] lg:py-3 lg:px-7 md:py-4 md:px-8 py-3 px-6.5  text-white font-semibold bg-[#4B3BFF] hover:bg-[#3921D7] rounded-3xl cursor-pointer transition-all duration-300">Save</button>
+
+                        <button type="submit" className="lg:text-[17px] md:text-[20px] text-[20px] lg:py-3 lg:px-7 md:py-4 md:px-8 py-3 px-6.5  text-white font-semibold bg-[#4B3BFF] hover:bg-[#3921D7] rounded-3xl cursor-pointer transition-all duration-300">{isPending ? 'Saving...' : 'Save'}</button>
                     </div>
                 </form>
             </section>
@@ -152,8 +226,16 @@ const Page = () => {
                     <FaTimes onClick={() => setopeneditEmail(false)} className='text-3xl md:text-5xl lg:text-4xl md:font-light text-indigo-600 cursor-pointer ' />
                 </div>
 
-                <form onSubmit={formikemail.handleSubmit} className=" lg:w-xl md:w-[70%] w-full h-fit px-5 flex flex-col justify-center m-auto mt-5">
+                <div className=" lg:w-xl md:w-[70%] w-full h-fit px-5 flex flex-col justify-center m-auto mt-5">
                     <h1 className="lg:text-3xl md:text-4xl text-3xl tracking-tight text-center text-[#262262]">Edit and verify your new email address</h1>
+
+                    {
+                        errMsg && (
+                            <div className="border border-red-400 bg-red-50 rounded-md py-2 px-4 min-h-10 flex items-center">
+                                <p className="text-red-600 text-sm">{errMsg && errMsg}</p>
+                            </div>
+                        )
+                    }
                     <input
                         className={`${formikemail.errors.newemail && formikemail.touched.newemail ? 'border-red-600 ' : 'border-neutral-300 hover:border-[#3921D7]'} lg:h-12 md:h-14 h-12 md:text-[17px] text-[17px] lg:text-sm px-2 outline-0 border  rounded-sm mt-5 `}
                         placeholder="New email"
@@ -167,13 +249,45 @@ const Page = () => {
                         )
                     }
 
+
+                    <input
+                        className={`${formikotp.errors.otp && formikotp.touched.otp ? 'border-red-600 ' : 'border-neutral-300 hover:border-[#3921D7]'} ${confirmotp ? 'block' : "hidden"} lg:h-12 md:h-14 h-12 md:text-[17px] text-[17px] lg:text-sm px-2 outline-0 border  rounded-sm mt-5 `}
+                        placeholder="Otp"
+                        name="otp"
+                        type="text"
+                        onChange={formikotp.handleChange}
+                    />
+                    {
+                        formikotp.errors.otp && formikotp.touched.otp && (
+                            <small className='text-red-600 text-[15px] lg:text-[14px] md:text-[17px]'>{formikotp.errors.otp}</small>
+                        )
+                    }
+
+
+
                     <div className="flex justify-end-safe h-fit items-center pl-auto gap-2 mt-3">
-                    
-                         <button type="button" onClick={() => setopeneditEmail(false)} className="lg:text-[17px] md:text-[20px] text-[20px] lg:py-3 lg:px-7 md:py-4 md:px-8  py-3 px-6.5  text-[#3921D7] font-semibold bg-transparent hover:bg-[#F4F4F5] rounded-3xl cursor-pointer transition-all duration-300">Cancel</button>
-                        
-                        <button type="submit" className="lg:text-[17px] md:text-[20px] text-[20px] lg:py-3 lg:px-7 md:py-4 md:px-8 py-3 px-6.5  text-white font-semibold bg-[#4B3BFF] hover:bg-[#3921D7] rounded-3xl cursor-pointer transition-all duration-300">Send code</button>
+
+                        <button type="button" onClick={() => closeeditemail()} className="lg:text-[17px] md:text-[20px] text-[20px] lg:py-3 lg:px-7 md:py-4 md:px-8  py-3 px-6.5  text-[#3921D7] font-semibold bg-transparent hover:bg-[#F4F4F5] rounded-3xl cursor-pointer transition-all duration-300">Cancel</button>
+
+                        <button
+                            onClick={() => formikemail.handleSubmit()}
+                            type="button"
+                            className={`${confirmotp ? "hidden" : 'block'} lg:text-[17px] md:text-[20px] text-[20px] lg:py-3 lg:px-7 md:py-4 md:px-8 py-3 px-6.5  text-white font-semibold bg-[#4B3BFF] hover:bg-[#3921D7] rounded-3xl cursor-pointer transition-all duration-300`}
+                        >
+                            {
+                                isPending ? 'sending...' : 'Send code'
+                            }
+                        </button>
+
+                        <button
+                            onClick={() => formikotp.handleSubmit()}
+                            type="submit"
+                            className={`${confirmotp ? "block" : 'hidden'} lg:text-[17px] md:text-[20px] text-[20px] lg:py-3 lg:px-7 md:py-4 md:px-8 py-3 px-6.5  text-white font-semibold bg-[#4B3BFF] hover:bg-[#3921D7] rounded-3xl cursor-pointer transition-all duration-300`}
+                        >
+                            Update
+                        </button>
                     </div>
-                </form>
+                </div>
             </section>
         </div>
     )
