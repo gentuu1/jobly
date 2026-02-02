@@ -48,7 +48,7 @@ const ProfileHam = ({
                         <Link href='/dashboard' className='text-[20px] font-semibold md:text-[25px] lg:text-[15px] ml-5'>Dashboard</Link>
                         <Link href='' className={`${isEmployer ? 'hidden' : 'block'} text-[20px] font-semibold md:text-[25px] lg:text-[15px] ml-5 `}>Applications</Link>
                         <Link href='/dashboard/applicants' className={`${isEmployer ? 'block' : 'hidden'} text-[20px] font-semibold md:text-[25px] lg:text-[15px] ml-5 `}>Applicant</Link>
-                        <Link href='' className={`${isEmployer ? 'block' : 'hidden'} text-[20px] font-semibold md:text-[25px] lg:text-[15px] ml-5 `}>Posted jobs</Link>
+                        <Link href='/dashboard/postedjobs' className={`${isEmployer ? 'block' : 'hidden'} text-[20px] font-semibold md:text-[25px] lg:text-[15px] ml-5 `}>Posted jobs</Link>
                         <Link href='/dashboard/savedjobs' className={`${isEmployer ? 'hidden' : 'block'} text-[20px] font-semibold md:text-[25px] lg:text-[15px] ml-5 `}>Saved jobs</Link>
                         <hr className="w-full border-neutral-300 my-5" />
                         <Link href='/dashboard/profile/pass&security' className='text-[20px] font-semibold md:text-[25px] lg:text-[15px] ml-5'>Password & security</Link>

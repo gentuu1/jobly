@@ -118,7 +118,6 @@ const Page = () => {
                         </div>
                     </div>
 
-                    {/* Email */}
                     <div className="flex flex-col gap-1">
                         <label className="text-gray-600 md:text-lg lg:text-[15px] mt-3">Email</label>
                         <input
@@ -152,7 +151,6 @@ const Page = () => {
                         )}
                     </div>
 
-                    {/* Profile Picture */}
                     <div className="flex flex-col gap-1">
                         <label className="text-gray-600 md:text-lg lg:text-[15px] mt-3">
                             Profile Picture <span className="text-sm text-gray-400">(optional)</span>
@@ -164,7 +162,6 @@ const Page = () => {
                         />
                     </div>
 
-                    {/* Submit */}
                     <button
                         type='submit'
                         className="bg-indigo-500 text-white font-semibold rounded-lg py-3 md:py-6 w-full hover:bg-indigo-600 transition duration-200 mt-5"

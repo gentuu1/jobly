@@ -227,7 +227,7 @@ export const employerSignup = async (daTa: {
     } catch (error) {
         return {
             success: false,
-            message: "something went wrong"
+            message: "Something went wrong"
         }
     }
 }
@@ -279,7 +279,7 @@ export const signIn = async (logData: {
         console.log(error);
         return {
             success: false,
-            message: "something went wrong"
+            message: "Something went wrong"
         }
     }
 }
@@ -711,7 +711,7 @@ export const allJObs = async () => {
     try {
         await dbConnect();
 
-        const jobs = await jobModel.find().populate("employerId", "companyName companyLogo");
+        const jobs = await jobModel.find().populate("employerId", "companyName companyLogo").limit(30);
 
         const randomJobs = jobs.sort(() => Math.random() - 0.5)
 

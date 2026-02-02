@@ -34,7 +34,7 @@ const Page = async() => {
                     <div className='w-full h-fit md:h-fit grid lg:grid-cols-3 gap-5 md:gap-4 md:grid-cols-2 md:px-2 grid-cols-1  lg:p-5 pt-5'>
                         {
                             jobss.map((job, index) => (
-                                <div key={index} className='bg-white lg:min-h-85 md:min-h-110 h-95 rounded-2xl shadow-lg '>
+                                <div key={index} className='bg-white lg:min-h-85 md:min-h-110  min-h-fit rounded-2xl shadow-lg pt-2 '>
 
                                    <Link href={`/dashboard/jobs/${job._id}`}>
                                         <div className="w-[95%] h-20 lg:h-17 md:h-20 mb-5 m-auto flex  justify-between ">

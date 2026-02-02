@@ -60,7 +60,7 @@ const Navbar = () => {
                             <Link href='' className='text-2xl font-semibold'>Employers</Link>
                             <Link href='' className='text-2xl font-semibold'>Contact us</Link>
                             <Link href='' className='text-2xl font-semibold'>Help Center</Link>
-                            <Link href='/' className='text-2xl font-semibold mb-10'>Home</Link>
+                            <Link href='/' className='text-2xl font-semibold mb-10'>Back</Link>
 
                             <Link href='/signup'>
                                 <button className='bg-indigo-600 hover:bg-indigo-700 w-[95%] py-5 font-semibold rounded-full mt-40 text-white text-[20px] m-auto'>

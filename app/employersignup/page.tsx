@@ -15,18 +15,10 @@ const Page = () => {
     const router = useRouter()
 
     const handlePhoto = (e: ChangeEvent<HTMLInputElement>) => {
-        const MAX_SIZE = 2 * 1024 * 1024;
         const file = e.target.files?.[0]
         if (!file) {
             formik.setFieldValue("companyLogo", '');
             return;
-        }
-
-        if (file.size > MAX_SIZE ) {
-            seterrormessage("Image must be less than 2MB");
-            formik.setFieldValue("companyLogo", '');
-            return
-
         }
 
         const reader = new FileReader()
@@ -124,7 +116,6 @@ const Page = () => {
 
                     <div className="flex flex-col gap-6">
 
-                        {/* Row 1: Company Name & Industry */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="flex flex-col">
                                 <label className="text-gray-600 mb-2">Company Name</label>
@@ -159,7 +150,6 @@ const Page = () => {
                             </div>
                         </div>
 
-                        {/* Row 2: Company Size */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="flex flex-col">
                                 <label className="text-gray-600 mb-2">Company Size</label>
@@ -200,7 +190,6 @@ const Page = () => {
 
                         <hr className="my-4" />
 
-                        {/* Row 4: Contact Fullname & Email */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="flex flex-col">
                                 <label className="text-gray-600 mb-2">First Name</label>
@@ -235,7 +224,6 @@ const Page = () => {
                             </div>
                         </div>
 
-                        {/* Full width password */}
                         <div className="flex flex-col">
                             <label className="text-gray-600 mb-2">Email</label>
                             <input
