@@ -38,7 +38,7 @@ const RecApplybutton = ({jobId} : Props) => {
             <button
                 onClick={() => alert(jobId)}
                 type="button"
-                className="w-60 md:w-100 lg:w-75 md:mr-5 lg:mr-0  lg:h-15 h-18 md:h-20 md:rounded-full lg:mt-0 mt-0 md:mt-2  rounded-full lg:rounded-3xl bg-[#6754E4] hover:bg-[#3921D7] text-white text-[20px] lg:text-[15px] font-semibold transition-all duration-400">
+                className="w-60 md:w-64 lg:w-65 md:mr-0 lg:mr-0   lg:h-15 h-18 md:h-20 md:rounded-full lg:mt-0 mt-0 md:mt-2  rounded-full lg:rounded-3xl bg-[#6754E4] hover:bg-[#3921D7] text-white text-[20px] lg:text-[15px] font-semibold transition-all duration-400">
                 {isPending ? (
                     "Applying..."
                 ) : applied ? (

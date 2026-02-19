@@ -48,12 +48,6 @@ export interface Job {
     createdAt : Date
 }
 
-export interface applica_tions {
-    jobId: Schema.Types.ObjectId,
-    applicantId: Schema.Types.ObjectId,
-    employerId: Schema.Types.ObjectId
-}
-
 export interface JOBS {
     jobType : string,
     _id: string,
@@ -62,8 +56,11 @@ export interface JOBS {
     location: string;
     paymentType: string;
     companyName: string,
-    companyLogo: string
+    companyLogo: string,
+    deleTe?:boolean
 }
+
+export type search_jobs = Omit<JOBS, "deleTe">
 
 export interface employerJOBS {
     _id: string,
@@ -74,4 +71,24 @@ export interface employerJOBS {
     location: string,
     jobType:string,
     paymentType: string
+}
+
+export interface applica_tions {
+    jobId: Schema.Types.ObjectId,
+    applicantId: Schema.Types.ObjectId,
+    employerId: Schema.Types.ObjectId,
+    employerDelete : boolean,
+    applicantDelete : boolean
+}
+
+export interface saved_Jobs {
+    jobId: Schema.Types.ObjectId,
+    applicantId: Schema.Types.ObjectId,
+}
+
+export type applicantInfo = Pick<User, "photo" | "firstname" | "lastname" | "email"> & {
+    title: string,
+    jobType: string,
+    _id : string,
+    deleTe : boolean
 }

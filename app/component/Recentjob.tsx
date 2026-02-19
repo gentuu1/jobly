@@ -6,6 +6,7 @@ import { MdOpenInNew } from 'react-icons/md'
 import Image from 'next/image'
 import Link from 'next/link'
 import RecApplybutton from './RecApplybutton'
+import SavejobButton from './SavejobButton'
 
 const Recentjob = async () => {
     const { success, jobs } = await recjoBs()
@@ -61,7 +62,7 @@ const Recentjob = async () => {
                                         <p className="text-[20px] md:text-[25px] lg:text-[15px] capitalize">{jobbb.companyName}</p>
                                         <p className="text-[20px] md:text-[25px] lg:text-[15px] capitalize inline-block ">{jobbb.location}</p>
                                         <div className=" w-full flex mt-2 h-15 lg:h-10 items-center gap-2">
-                                            <p className=" h-10 lg:h-8 rounded-sm text-center lg:w-25 w-30 text-xl lg:text-sm font-bold text-[#005647] bg-[#D1FFF7] content-center ">{jobbb.jobType}</p>
+                                            <p className=" h-10 lg:h-8 rounded-sm text-center lg:w-25 w-30 text-xl lg:text-sm font-bold text-[#005647] bg-[#D1FFF7] content-center capitalize ">{jobbb.jobType}</p>
                                             <p className=" h-10 lg:h-8 lg:w-30 rounded-sm text-center w-40 text-xl lg:text-sm font-bold text-[#422BD9] bg-[#D9D9FC] content-center ">Urgent hiring</p>
                                         </div>
                                   </Link>
@@ -70,9 +71,7 @@ const Recentjob = async () => {
                                         
                                         <RecApplybutton jobId={jobbb._id}/>
 
-                                        <button className="w-18 h-18 md:h-20 md:w-20 lg:h-15 lg:w-15 rounded-[100%]  bg-transparent border border-[#4B3BFF] text-[#4B3BFF] text-[20px] font-semibold transition-all duration-400">
-                                            <FaRegHeart className="inline-block bg-transparent" />
-                                        </button>
+                                       <SavejobButton jobId={jobbb._id}/>
                                     </div>
 
                                 </div>

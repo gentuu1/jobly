@@ -1,14 +1,17 @@
 "use client";
-import { useEffect, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import ProfileHam from './ProfileHam'
 import { FaRegBell, FaSearch } from 'react-icons/fa'
 import { proFile } from '../utils/actions';
+import { useRouter } from 'next/navigation';
+import Spinner from './Spinner';
 
 const ProfileNavbar = () => {
-
+    const [query, setquery] = useState('')
     const [firstname, setfirstname] = useState('')
     const [lastname, setlastname] = useState('')
     const [isEmployer, setisEmployer] = useState<boolean | null>(null)
+    const router = useRouter()
 
     const profile = async () => {
         const result = await proFile()
@@ -22,12 +25,23 @@ const ProfileNavbar = () => {
         profile()
     },[])
 
+    const handleSearch = (e:FormEvent)=>{
+        e.preventDefault();
+
+        if(!query.trim()) return;
+        console.log(query)
+        router.push(`/dashboard/searchjob?search=${query}`)
+    }
+
     if(isEmployer === null){
-        return <nav className='w-full bg-white shadow-sm p-10 h-30 content-center'>
-            <h1 className="text-3xl md:text-5xl lg:text-[35px] font-extrabold text-indigo-600 tracking-tight">
-                Workly
-            </h1>
-        </nav>
+        return <>
+            <nav className='w-full bg-white shadow-sm p-10 h-30 content-center'>
+                <h1 className="text-3xl md:text-5xl lg:text-[35px] font-extrabold text-indigo-600 tracking-tight">
+                    Workly
+                </h1>
+            </nav>
+
+        </>
     }
 
     
@@ -41,11 +55,13 @@ const ProfileNavbar = () => {
 
                     {
                         !isEmployer  && (
-                            <form className='border lg:w-[45%] lg:h-12 h-15 md:h-16 hidden md:hidden lg:flex lg:gap-5 rounded-full items-center'>
+                            <form onSubmit={handleSearch} className='border lg:w-[45%] lg:h-12 h-15 md:h-16 hidden md:hidden lg:flex lg:gap-5 rounded-full items-center'>
                                 <input
+                                    value={query}
+                                    onChange={(e)=>setquery(e.target.value)}
                                     type="text"
                                     placeholder='Search'
-                                    className='pl-5 h-full lg:w-[85%] md:w-[85%]  lg:mr-4  outline-0  text-3xl lg:text-[15px] font-semibold placeholder:text-2xl lg:placeholder:text-[15px]'
+                                    className='pl-5 h-full lg:w-[85%] md:w-[85%]  lg:mr-4  outline-0 lg:text-[15px]'
                                 />
 
                                 <button type='submit' className='h-15 flex w-15 lg:h-12 lg:w-12 rounded-full justify-center items-center text-white font-bold lg:text-2xl text-3xl border bg-[#4B3BFF] '><FaSearch /></button>
@@ -54,7 +70,7 @@ const ProfileNavbar = () => {
                     }
 
                     <div className=' w-45 md:w-50 lg:w-40 lg:h-15 h-18 flex items-center gap-5 '>
-                        <p className='h-17 lg:h-15 lg:w-15  w-17 bg-[#E6E6FA] text-[#4B3BFF] text-2xl lg:text-2xl font-bold rounded-[100%] capitalize text-center content-center cursor-pointer'>{firstname[0]}</p>
+                        <p className='h-17 lg:h-15 lg:w-15  w-17 bg-[#E6E6FA] text-[#4B3BFF] text-2xl lg:text-2xl font-bold rounded-[100%] capitalize text-center content-center cursor-pointer'>{firstname?.[0]}</p>
                         <FaRegBell className='size-8 md:size-10 lg:size-8' />
                         < ProfileHam firstname={firstname} lastname={lastname} isEmployer={isEmployer}/>
                     </div>
@@ -62,11 +78,12 @@ const ProfileNavbar = () => {
 
                 {
                     !isEmployer && (
-                        <form className='border w-[90%] md:w-[70%] h-14 md:h-16 flex lg:hidden gap-3 md:gap-5 rounded-full items-center'>
+                        <form onSubmit={handleSearch} className='border w-[90%] md:w-[70%] h-14 md:h-16 flex lg:hidden gap-3 md:gap-5 rounded-full items-center'>
                             <input
+                                onChange={(e) => setquery(e.target.value)}
                                 type="text"
                                 placeholder='Search'
-                                className='pl-5 h-full w-[80%] md:w-[85%]  mr-0 md:mr-8 outline-0  text-3xl font-semibold placeholder:text-2xl'
+                                className='pl-5 h-full w-[80%] md:w-[85%]  mr-0 md:mr-8 outline-0  text-lg'
                             />
 
                             <button type='submit' className='h-15 flex w-15 rounded-full justify-center items-center text-white font-bold text-3xl border bg-[#4B3BFF] '><FaSearch /></button>

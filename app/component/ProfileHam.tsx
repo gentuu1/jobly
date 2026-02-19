@@ -46,7 +46,7 @@ const ProfileHam = ({
                     <div className='h-fit w-full  flex flex-col gap-5 lg:gap-2'>
                         <Link href='/dashboard/profile' className='text-[20px] md:text-[25px] lg:text-[15px] font-semibold ml-5'>Profile</Link>
                         <Link href='/dashboard' className='text-[20px] font-semibold md:text-[25px] lg:text-[15px] ml-5'>Dashboard</Link>
-                        <Link href='' className={`${isEmployer ? 'hidden' : 'block'} text-[20px] font-semibold md:text-[25px] lg:text-[15px] ml-5 `}>Applications</Link>
+                        <Link href='/dashboard/applications' className={`${isEmployer ? 'hidden' : 'block'} text-[20px] font-semibold md:text-[25px] lg:text-[15px] ml-5 `}>Applications</Link>
                         <Link href='/dashboard/applicants' className={`${isEmployer ? 'block' : 'hidden'} text-[20px] font-semibold md:text-[25px] lg:text-[15px] ml-5 `}>Applicant</Link>
                         <Link href='/dashboard/postedjobs' className={`${isEmployer ? 'block' : 'hidden'} text-[20px] font-semibold md:text-[25px] lg:text-[15px] ml-5 `}>Posted jobs</Link>
                         <Link href='/dashboard/savedjobs' className={`${isEmployer ? 'hidden' : 'block'} text-[20px] font-semibold md:text-[25px] lg:text-[15px] ml-5 `}>Saved jobs</Link>

@@ -1,4 +1,6 @@
 import ProfileNavbar from '@/app/component/ProfileNavbar'
+import RecApplybutton from '@/app/component/RecApplybutton'
+import SavejobButton from '@/app/component/SavejobButton'
 import { allJObs } from '@/app/utils/actions'
 import { JOBS } from '@/app/utils/type'
 import Image from 'next/image'
@@ -49,7 +51,7 @@ const Page = async() => {
                                                 />
                                             </div>
                                             <div className='w-fit text-right '>
-                                                <h1 className="text-3xl lg:text-2xl md:text-4xl font-bold ">₦{job.salary}</h1>
+                                                <h1 className="text-3xl lg:text-2xl md:text-4xl font-bold ">₦{(job.salary)}</h1>
                                                 <p className="text-lg lg:text-sm md:text-lg">{job.paymentType}</p>
                                             </div>
                                         </div>
@@ -61,19 +63,15 @@ const Page = async() => {
                                             <p className="text-[20px] md:text-[25px] lg:text-[15px] capitalize">{job.companyName}</p>
                                             <p className="text-[20px] md:text-[25px] lg:text-[15px] capitalize inline-block ">{job.location}</p>
                                             <div className=" w-full flex mt-2 h-15 lg:h-10 items-center gap-2">
-                                                <p className=" h-10 lg:h-8 rounded-sm text-center lg:w-25 w-30 text-xl lg:text-sm font-bold text-[#005647] bg-[#D1FFF7] content-center ">{job.jobType}</p>
+                                                <p className=" h-10 lg:h-8 rounded-sm text-center lg:w-25 w-30 text-xl lg:text-sm font-bold text-[#005647] bg-[#D1FFF7] content-center capitalize ">{job.jobType}</p>
                                                 <p className=" h-10 lg:h-8 lg:w-30 rounded-sm text-center w-40 text-xl lg:text-sm font-bold text-[#422BD9] bg-[#D9D9FC] content-center ">Urgent hiring</p>
                                             </div>
                                         </Link>
 
-                                        <form className=" mt-5 lg:mt-3 flex gap-2 md:justify-start items-center lg:justify-start ">
-                                            <button className="w-65 mr-2 md:w-70 lg:w-75 md:mr-3 lg:mr-2  lg:h-15 h-18 md:h-20 md:rounded-full lg:mt-0 mt-0 md:mt-2  rounded-full lg:rounded-3xl bg-[#6754E4] hover:bg-[#3921D7] text-white text-[20px] lg:text-[15px] font-semibold transition-all duration-400">
-                                                Apply Now <MdOpenInNew className="inline-block" />
-                                            </button>
-                                            <button className="w-18 h-18 md:h-20 md:w-20 lg:h-15 lg:w-15 rounded-[100%]  bg-transparent border border-[#4B3BFF] text-[#4B3BFF] text-[20px] font-semibold transition-all duration-400">
-                                                <FaRegHeart className="inline-block bg-transparent" />
-                                            </button>
-                                        </form>
+                                        <div className="mt-5 lg:mt-3 flex gap-2  md:justify-start items-center lg:justify-start justify-between ">
+                                            <RecApplybutton jobId={job._id} />
+                                            <SavejobButton jobId={job._id} />
+                                        </div>
 
                                     </div>
                                 </div>

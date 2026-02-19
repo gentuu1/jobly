@@ -11,6 +11,8 @@ import { datatoUpdatetype } from "./type";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { jobModel } from "../models/jobs";
 import { applicationModel } from "../models/applications";
+import { savedJobsModel } from "../models/savedjobs";
+import { IoReturnDownForwardSharp } from "react-icons/io5";
 const otpGenerator = require('otp-generator');
 const nodemailer = require("nodemailer")
 
@@ -22,7 +24,8 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-// let NEWEMAIL;
+let NEWEMAIL;
+
 
 
 export const signUp = async (daTa: {
@@ -250,7 +253,7 @@ export const signIn = async (logData: {
             }
         }
 
-        const isPassword = await bcrypt.compare(logData.password, user.password);
+        const isPassword = await bcrypt.compare(logData.password, user.password)
 
         if (!isPassword) {
             return {
@@ -681,14 +684,14 @@ export const recjoBs = async () => {
 
         const joB = jobs.map(job => {
             return {
-                jobType : job.jobType,
+                jobType: job.jobType,
                 title: job.title,
                 salary: job.salary,
                 location: job.location,
                 paymentType: job.paymentType,
                 companyName: job.employerId.companyName,
                 companyLogo: job.employerId.companyLogo,
-                 _id: job._id.toString(),
+                _id: job._id.toString(),
             }
         })
 
@@ -718,8 +721,8 @@ export const allJObs = async () => {
         const joB = randomJobs.map(job => {
 
             return {
-                jobType : job.jobType,
-                _id : job._id.toString(),
+                jobType: job.jobType,
+                _id: job._id.toString(),
                 title: job.title,
                 salary: job.salary,
                 location: job.location,
@@ -821,6 +824,8 @@ export const delJob = async (
         };
 
         await jobModel.findByIdAndDelete(JobId)
+        await applicationModel.deleteMany({jobId : JobId})
+        await savedJobsModel.deleteMany({ jobId: JobId })
         revalidatePath('/dashboard/postedjobs')
         revalidatePath('/dashboard')
         revalidatePath('/')
@@ -840,41 +845,41 @@ export const delJob = async (
 }
 
 
-export const applyJob =async (jobId : string)=>{
+export const applyJob = async (jobId: string) => {
     try {
         await dbConnect();
 
-        const {success, _id} = await auth()
+        const { success, _id } = await auth()
 
-        if(!success){
+        if (!success) {
             return {
                 success: false,
-                message:'Login required'
+                message: 'Login required'
             }
         };
 
         const job = await jobModel.findById(jobId).populate("employerId", "companyName companyLogo");
 
-        if(!job){
+        if (!job) {
             return {
-                success : false,
+                success: false,
                 message: "This job can not be applied for"
             }
         };
 
         const alreadyApplied = await applicationModel.findOne({
-            jobId, 
-            applicantId : _id
+            jobId,
+            applicantId: _id,
         });
-        
-        if(alreadyApplied){
+
+        if (alreadyApplied) {
             return {
-                success : false,
+                success: false,
                 message: "You already applied for this job"
             }
         };
 
-        if (job.employerId._id.toString() === _id){
+        if (job.employerId._id.toString() === _id) {
             return {
                 success: false,
                 message: "You can not apply for your own job"
@@ -884,13 +889,13 @@ export const applyJob =async (jobId : string)=>{
         await applicationModel.create({
             jobId,
             applicantId: _id,
-            employerId : job.employerId._id
+            employerId: job.employerId._id
         })
 
-        const applicaTions = await applicationModel.findOne({ jobId, applicantId : _id})
-                    .populate("jobId", "title")
-                    .populate("employerId" ,"companyName email")
-                    .populate("applicantId" ,"firstname lastname location email")
+        const applicaTions = await applicationModel.findOne({ jobId, applicantId: _id })
+            .populate("jobId", "title")
+            .populate("employerId", "companyName email")
+            .populate("applicantId", "firstname lastname location email")
 
 
         const employerMsg = {
@@ -922,7 +927,7 @@ export const applyJob =async (jobId : string)=>{
       </p>
 
       <div style="text-align: center; margin: 30px 0;">
-        <a href="https://localhost:3000/dashboard/applicants" 
+        <a href="https://jobly-w46h.vercel.app/dashboard/applicants" 
            style="background-color: #4B3BFF; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; display: inline-block;">
           View All Applicants
         </a>
@@ -939,7 +944,7 @@ export const applyJob =async (jobId : string)=>{
             if (err) {
                 console.log(err);
             }
-        });       
+        });
 
 
         const applicantMsg = {
@@ -965,7 +970,7 @@ export const applyJob =async (jobId : string)=>{
       </p>
 
       <div style="text-align: center; margin: 30px 0;">
-        <a href="https://localhost:3000/dashboard/jobs" 
+        <a href="https://jobly-w46h.vercel.app/dashboard/jobs" 
            style="background-color: #4B3BFF; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; display: inline-block;">
           See More Jobs
         </a>
@@ -984,21 +989,422 @@ export const applyJob =async (jobId : string)=>{
             if (err) {
                 console.log(err);
             }
-        });  
+        });
 
 
-        return{
-            success : true,
-            message :"Application successfully submited"
+        return {
+            success: true,
+            message: "Application successfully submited"
         }
 
-        
+
 
 
     } catch (error) {
         return {
+            success: false,
+            message: "Something went wrong, try apply later!"
+        }
+    }
+}
+
+export const savedJobs = async (
+    jobId: string
+) => {
+    try {
+        await dbConnect();
+
+        const { success, _id } = await auth();
+
+        if (!success) {
+            return {
+                success: false,
+                message: "Login required"
+            }
+        }
+
+        const job = await jobModel.findById(jobId);
+
+        if (!job) {
+            return {
+                success: false,
+                message: " This job can not be applied for"
+            }
+        }
+
+        const alreadySaved = await savedJobsModel.findOne({
+            jobId,
+            applicantId: _id
+        })
+
+        if (alreadySaved) {
+            return {
+                success: false,
+                message: " This job has already been saved"
+            }
+        }
+
+        await savedJobsModel.create({
+            jobId,
+            applicantId: _id
+        })
+
+        return {
+            success: true,
+            message: "Job saved"
+        }
+
+    } catch (error) {
+        return {
+            success: false,
+            message: "Something went wrong"
+        }
+    }
+}
+
+export const fetchSaveJob = async () => {
+    try {
+        await dbConnect();
+
+        const { success, _id } = await auth()
+
+        if (!success) {
+            return {
+                success: false,
+                message: " Login required"
+            }
+        }
+
+        const isJobs = await savedJobsModel.find({ applicantId: _id }).populate({
+            path: 'jobId',
+            select: "title location jobType salary employerId paymentType",
+            populate: {
+                path: "employerId",
+                select: "companyName companyLogo "
+            }
+        })
+
+        const jobs = isJobs.map(job => {
+            const joBs = {
+                _id: job.jobId._id.toString(),
+                title: job.jobId.title,
+                location: job.jobId.location,
+                paymentType: job.jobId.paymentType,
+                jobType: job.jobId.jobType,
+                salary: job.jobId.salary,
+                companyName: job.jobId.employerId.companyName,
+                companyLogo: job.jobId.employerId.companyLogo
+            }
+
+            return joBs
+        })
+
+
+
+        return {
+            success: true,
+            jobs: jobs
+        }
+    } catch (error) {
+        console.log(error)
+        return {
+            success: false,
+            message: "Something went wrong."
+        }
+    }
+}
+
+export const applicaTions = async () => {
+    try {
+        await dbConnect();
+        const { success, _id } = await auth()
+
+        if (!success) {
+            return {
+                success: false,
+                message: "Login required"
+            }
+        }
+
+        const applicaTions = await applicationModel.find({ 
+            applicantId: _id,
+            applicantDelete : false
+         }).populate({
+            path: 'jobId',
+            select: "title salary paymentType jobType location ",
+            populate: {
+                path: "employerId",
+                select: "companyName companyLogo "
+            }
+        })
+
+        const jobs = applicaTions.map(job => {
+            const jobs = {
+                deleTe :  job.employerDelete,
+                _id: job._id.toString(),
+                title: job.jobId.title,
+                location: job.jobId.location,
+                paymentType: job.jobId.paymentType,
+                jobType: job.jobId.jobType,
+                salary: job.jobId.salary,
+                companyName: job.jobId.employerId.companyName,
+                companyLogo: job.jobId.employerId.companyLogo
+            }
+
+            return jobs
+        })
+
+        return {
+            success: true,
+            jobs
+        }
+    } catch (error) {
+        return {
+            success: false,
+            message: "Something went wrong"
+
+        }
+    }
+}
+
+
+export const appliCants = async ()=>{
+    try {
+        await dbConnect();
+
+        const { success, _id} = await auth()
+
+        if(!success){
+            return {
+                success : false,
+                message: "Login required!"
+            }
+        }
+
+        const isApplicants = await applicationModel.find({
+            employerId : _id,
+            employerDelete : false
+        }).populate({
+            path : "applicantId",
+            select : "firstname lastname email photo"
+        }).populate({
+            path:"jobId",
+            select: "title  jobType"
+        }).sort({_id : -1})
+
+        const applys = isApplicants.map(apply =>{
+            const isApplys = {
+                deleTe : apply.applicantDelete,
+                _id : apply._id?.toString() || '',
+                photo : apply.applicantId?.photo || '',
+                firstname: apply.applicantId?.firstname || '',
+                lastname: apply.applicantId?.lastname || '',
+                email : apply.applicantId?.email || '',
+                title : apply.jobId?.title || '',
+                jobType: apply.jobId?.jobType || '',
+            }
+
+            return isApplys
+        })
+
+        revalidatePath('/dashboard/applications')
+        revalidatePath('/dashboard/applicants')
+
+        return {
+            success : true, 
+            applys
+        }
+    } catch (error) {
+        console.log(error)
+        return {
             success : false,
-            message : "Something went wrong, try apply later!"
+            message : "Something went wrong"
+        }
+    }
+}
+
+
+export const delApplications = async(applicationId : string)=>{
+    try {
+        await dbConnect();
+
+        const {success, _id} = await auth()
+
+        if(!success){
+            return {
+                success : false,
+                message : "Login required"
+            }
+        }
+
+        const isApplications = await applicationModel.findById(applicationId);
+
+        if(!isApplications){
+            return {
+                success : false,
+                message: "Application not found"
+            }
+        }
+
+        const isUser = await userModel.findById(_id);
+
+        if(!isUser){
+           return {
+            success : false,
+            message : "User not found"
+           }
+        }
+
+        if (!isUser.isEmployer && isApplications.applicantId.toString() !== _id) {
+            return { success: false, message: "You cannot delete this application" };
+        }
+
+        if (isUser.isEmployer && isApplications.employerId.toString() !== _id) {
+            return { success: false, message: "You cannot delete this application" };
+        }
+
+        if (!isUser.isEmployer && isApplications.applicantId.toString() == _id){
+            isApplications.applicantDelete = true
+        }
+
+        if (isUser.isEmployer && isApplications.employerId.toString() == _id) {
+            isApplications.employerDelete = true
+        }
+
+        await isApplications.save()
+
+        revalidatePath('/dashboard/applications')
+        revalidatePath('/dashboard/applicants')
+
+        return {
+            success : true,
+            message: "Application successfully deleted"
+        }
+   
+    } catch (error) {
+        console.log(error);
+        return {
+            success : false,
+            message : "Something went wrong"
+        }
+    }
+}
+
+
+export const delSavedjob = async (jobId : string)=>{
+    try {
+        await dbConnect();
+
+        const {success, _id} =await auth();
+
+        if(!success){
+            return {
+                success : false,
+                message : "Login required"
+            }
+        }
+
+        const isUser = await userModel.findOne({
+            _id : _id,
+            isEmployer : false
+        })
+
+        if(!isUser || isUser.isEmployer){
+            return {
+                success : false,
+                message : "User not authorized"
+            }
+        }
+
+       const deleteJob =  await savedJobsModel.findOneAndDelete({
+            jobId,
+            applicantId : _id
+        })
+
+        if (!deleteJob) {
+            return {
+                success: false,
+                message: "Job not found"
+            }
+        }
+
+        revalidatePath("/dashboard/savedjobs")
+        return  {
+            success : true,
+            message : "Job successfully removed."
+        }
+    } catch (error) {
+        console.log(error)
+        return {
+            success : false,
+            message : 'Something went wrong'
+        }
+    }
+}
+
+export const searchJob = async(search :string)=>{
+    try {
+        await dbConnect();
+
+        const {success} = await auth();
+
+        if(!success){
+            return {
+                success : false,
+                message  : "Login required"
+            }
+        }
+
+        if(!search){
+            return{ 
+                success : false,
+                message: "Please enter a search term"
+            }
+        };
+
+        const jobs  = await jobModel.find({
+            $or : [
+                {title : {$regex : search, $options : "i"}},
+                {jobType : {$regex : search, $options : "i"}}
+            ]
+        }).populate('employerId', "companyName companyLogo");
+
+        if(!jobs){
+            return {
+                success : false,
+                message : " No Jobs found"
+            }
+        };
+
+
+
+        const randoms = jobs.sort(() => Math.random() - 0.5)
+
+        const filteredJobs = randoms.map(job => {
+            return {
+                jobType: job.jobType,
+                _id: job._id.toString(),
+                title: job.title,
+                salary: job.salary,
+                location: job.location,
+                paymentType: job.paymentType,
+                companyName: job.employerId.companyName,
+                companyLogo: job.employerId.companyLogo
+
+            }
+
+        })
+
+        return {
+            success : true,
+            filteredJobs
+        }
+
+    } catch (error) {
+        console.log(error)
+        return {
+            success : false,
+            message : "Something went wrong"
         }
     }
 }

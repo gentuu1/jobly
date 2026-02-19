@@ -1,5 +1,6 @@
 import Applybutton from '@/app/component/Applybutton'
 import ProfileNavbar from '@/app/component/ProfileNavbar'
+import SingleJobSavebut from '@/app/component/SingleJobSavebut'
 import { jobModel } from '@/app/models/jobs'
 import { dbConnect } from '@/app/utils/dbConnects'
 import Image from 'next/image'
@@ -85,21 +86,15 @@ const Page = async ({ params }: { params: { _id: string } }) => {
         </div>
         
         <div className="lg:flex-1 bg-white rounded-2xl shadow p-6 h-fit sticky top-28">
-          <form className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4">
             <Applybutton jobId ={product._id.toString()}/>
 
-            <button
-              type="button"
-              className="w-full h-14 rounded-full border border-[#4B3BFF] text-[#4B3BFF] text-lg font-semibold flex items-center justify-center gap-2"
-            >
-              <FaRegHeart />
-              Save Job
-            </button>
+            <SingleJobSavebut jobId={product._id.toString()} />
 
             <p className="text-sm text-gray-500 text-center mt-2">
               You can apply directly on this platform
             </p>
-          </form>
+          </div>
         </div>
 
       </div>
